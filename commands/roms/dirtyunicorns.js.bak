@@ -1,0 +1,190 @@
+module.exports = (globalVariables) => {
+  Object.keys(globalVariables).map(variable => {
+    global[variable] = globalVariables[variable];
+  });
+
+  async function command(message){
+    let codename = cdn(message);
+    if(codename == undefined) return message.channel.send("Please enter a codename !");
+    let msg = await message.channel.send(`Searching official Dirty Unicorns for \`${devicename(codename)}\`...`);
+    try {
+      let dirtyw = fetch(`https://download.dirtyunicorns.com/api/files/${codename}/Weeklies`);
+      let dirtyo = fetch(`https://download.dirtyunicorns.com/api/files/${codename}/Official`);
+      let dirtyr = fetch(`https://download.dirtyunicorns.com/api/files/${codename}/Rc`);
+      if((await dirtyw).status !== 200){
+        dirtyw = null;
+      } else {
+        dirtyw = await dirtyw.then(res => res.json());
+        if(dirtyw.length === 0){
+          dirtyw = null;
+        } else {
+          dirtyw = dirtyw.slice(-1)[0];
+        }
+      }
+      if((await dirtyo).status !== 200){
+        dirtyo = null;
+      } else {
+        dirtyo = await dirtyo.then(res => res.json());
+        if(dirtyo.length === 0){
+          dirtyo = null;
+        } else {
+          dirtyo = dirtyo.slice(-1)[0];
+        }
+      }
+      if((await dirtyr).status !== 200){
+        dirtyr = null;
+      } else {
+        dirtyr = await dirtyr.then(res => res.json());
+        if(dirtyr.length === 0){
+          dirtyr = null;
+        } else {
+          dirtyr = dirtyr.slice(-1)[0];
+        }
+      }
+      if(dirtyw == null && dirtyo == null && dirtyr == null){
+        dirtyw = fetch(`https://download.dirtyunicorns.com/api/files/${codename.toUpperCase()}/Weeklies`);
+        dirtyo = fetch(`https://download.dirtyunicorns.com/api/files/${codename.toUpperCase()}/Official`);
+        dirtyr = fetch(`https://download.dirtyunicorns.com/api/files/${codename.toUpperCase()}/Rc`);
+        if((await dirtyw).status !== 200){
+          dirtyw = null;
+        } else {
+          dirtyw = await dirtyw.then(res => res.json());
+          if(dirtyw.length === 0){
+            dirtyw = null;
+          } else {
+            dirtyw = dirtyw.slice(-1)[0];
+          }
+        }
+        if((await dirtyo).status !== 200){
+          dirtyo = null;
+        } else {
+          dirtyo = await dirtyo.then(res => res.json());
+          if(dirtyo.length === 0){
+            dirtyo = null;
+          } else {
+            dirtyo = dirtyo.slice(-1)[0];
+          }
+        }
+        if((await dirtyr).status !== 200){
+          dirtyr = null;
+        } else {
+          dirtyr = await dirtyr.then(res => res.json());
+          if(dirtyr.length === 0){
+            dirtyr = null;
+          } else {
+            dirtyr = dirtyr.slice(-1)[0];
+          }
+        }
+        if(dirtyw == null && dirtyo == null && dirtyr == null) return msg.edit(`Dirty Unicorns wasn't find for \`${devicename(codename)}\``);
+      }
+      let embed = new Discord.MessageEmbed()
+        .setTitle(`Dirty Unicorns | ${devicename(codename).split(" | ")[0]}`);
+      if(dirtyw != null){
+        embed.addField(`Weeklies`, `**Version**: \`${dirtyw.filename.split("-")[1]}\`\n**Date**: \`${dirtyw.filename.split("-")[2].substring(0,4)}-${dirtyw.filename.split("-")[2].substring(4,6)}-${dirtyw.filename.split("-")[2].substring(6,8)}\`\n**Size**: \`${pretty(dirtyw.filesize)}\`\n**MD5**: \`${pretty(dirtyw.fileMd5)}\`\n**Download**: [${dirtyw.filename}](https://download.dirtyunicorns.com/api/download/${dirtyw.filename.split('-')[0].split('_')[1]}/Weeklies/${dirtyw.filename})`);
+      } if(dirtyo != null){
+        embed.addField(`Official`, `**Version**: \`${dirtyo.filename.split("-")[1]}\`\n**Date**: \`${dirtyo.filename.split("-")[2].substring(0,4)}-${dirtyo.filename.split("-")[2].substring(4,6)}-${dirtyo.filename.split("-")[2].substring(6,8)}\`\n**Size**: \`${pretty(dirtyo.filesize)}\`\n**MD5**: \`${pretty(dirtyo.fileMd5)}\`\n**Download**: [${dirtyo.filename}](https://download.dirtyunicorns.com/api/download/${dirtyo.filename.split('-')[0].split('_')[1]}/Official/${dirtyo.filename})`);
+      } if(dirtyr != null){
+        embed.addField(`Rc`, `**Version**: \`${dirtyr.filename.split("-")[1]}\`\n**Date**: \`${dirtyr.filename.split("-")[2].substring(0,4)}-${dirtyr.filename.split("-")[2].substring(4,6)}-${dirtyr.filename.split("-")[2].substring(6,8)}\`\n**Size**: \`${pretty(dirtyr.filesize)}\`\n**MD5**: \`${pretty(dirtyr.fileMd5)}\`\n**Download**: [${dirtyr.filename}](https://download.dirtyunicorns.com/api/download/${dirtyr.filename.split('-')[0].split('_')[1]}/Rc/${dirtyr.filename})`);
+      }
+      msg.edit("",{embed})
+    } catch(e){
+      msg.edit(`An error occured, please retry later.`);
+    }
+  }
+
+  command.options = {
+    name: ["du","dirtyunicorns","dirty"],
+    enable: true
+  };
+
+  command.romname = "Dirty Unicorns"
+
+  command.help = {
+    "category": "roms",
+    "description": "Get Official "+command.romname+" for a specific device",
+    "example": "{prefix}"+command.options.name[0]+" violet"
+  }
+
+  command.roms = async function(codename){
+    try {
+      let dirtyw = fetch(`https://download.dirtyunicorns.com/api/files/${codename}/Weeklies`);
+      let dirtyo = fetch(`https://download.dirtyunicorns.com/api/files/${codename}/Official`);
+      let dirtyr = fetch(`https://download.dirtyunicorns.com/api/files/${codename}/Rc`);
+      if((await dirtyw).status !== 200){
+        dirtyw = null;
+      } else {
+        dirtyw = await dirtyw.then(res => res.json());
+        if(dirtyw.length === 0){
+          dirtyw = null;
+        } else {
+          dirtyw = dirtyw.slice(-1)[0];
+        }
+      }
+      if((await dirtyo).status !== 200){
+        dirtyo = null;
+      } else {
+        dirtyo = await dirtyo.then(res => res.json());
+        if(dirtyo.length === 0){
+          dirtyo = null;
+        } else {
+          dirtyo = dirtyo.slice(-1)[0];
+        }
+      }
+      if((await dirtyr).status !== 200){
+        dirtyr = null;
+      } else {
+        dirtyr = await dirtyr.then(res => res.json());
+        if(dirtyr.length === 0){
+          dirtyr = null;
+        } else {
+          dirtyr = dirtyr.slice(-1)[0];
+        }
+      }
+      if(dirtyw == null && dirtyo == null && dirtyr == null){
+        dirtyw = fetch(`https://download.dirtyunicorns.com/api/files/${codename.toUpperCase()}/Weeklies`);
+        dirtyo = fetch(`https://download.dirtyunicorns.com/api/files/${codename.toUpperCase()}/Official`);
+        dirtyr = fetch(`https://download.dirtyunicorns.com/api/files/${codename.toUpperCase()}/Rc`);
+        if((await dirtyw).status !== 200){
+          dirtyw = null;
+        } else {
+          dirtyw = await dirtyw.then(res => res.json());
+          if(dirtyw.length === 0){
+            dirtyw = null;
+          } else {
+            dirtyw = dirtyw.slice(-1)[0];
+          }
+        }
+        if((await dirtyo).status !== 200){
+          dirtyo = null;
+        } else {
+          dirtyo = await dirtyo.then(res => res.json());
+          if(dirtyo.length === 0){
+            dirtyo = null;
+          } else {
+            dirtyo = dirtyo.slice(-1)[0];
+          }
+        }
+        if((await dirtyr).status !== 200){
+          dirtyr = null;
+        } else {
+          dirtyr = await dirtyr.then(res => res.json());
+          if(dirtyr.length === 0){
+            dirtyr = null;
+          } else {
+            dirtyr = dirtyr.slice(-1)[0];
+          }
+        }
+        if(dirtyw == null && dirtyo == null && dirtyr == null) return null;
+      }
+      let array = [];
+      if(dirtyw != null) array.push(`${command.romname} [Weeklies] (${command.options.name.join("/")})`);
+      if(dirtyo != null) array.push(`${command.romname} [Official] (${command.options.name.join("/")})`);
+      if(dirtyr != null) array.push(`${command.romname} [Rc] (${command.options.name.join("/")})`);
+      return array
+    } catch(e){
+      return null;
+    }
+  }
+
+  return command;
+}

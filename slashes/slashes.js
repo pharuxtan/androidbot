@@ -61,14 +61,16 @@ module.exports = (globalVariables) => {
         let self = this;
         this.channel.send = async (...args) => {
           let msg = await self.send(...args);
-          this.channel.send = send;
+          self.channel.send = send;
           return msg;
         }
         client.emit("message", this);
+      } else {
+        this.send("The command `"+this.command+"` isn't supported without the scope bot, you can invite the bot with the scope bot here: <https://discord.com/oauth2/authorize?client_id=572002884552491008&permissions=34880&scope=applications.commands%20bot%20applications.commands.update>")
       }
     }
 
-    parseMessage(content = "\u200B", embeds = [], allowed_mentions = {}, tts = false){
+    static parseMessage(content = "\u200B", embeds = [], allowed_mentions = {}, tts = false){
       let data = {content,embeds,allowed_mentions,tts};
       if(embeds instanceof Discord.MessageEmbed){
         data.embeds = [embeds];
@@ -78,6 +80,7 @@ module.exports = (globalVariables) => {
         data.content = "\u200B";
       } if(typeof content == "object"){
         if(content.tts) data.tts = content.tts
+        if(content.components) data.components = content.components
         if(content.allowed_mentions) data.allowed_mentions = content.allowed_mentions
         if(content.embeds) data.embeds = content.embeds
         if(content.embed){
@@ -88,6 +91,7 @@ module.exports = (globalVariables) => {
         else data.content = "\u200B";
       } else if(typeof embeds == "object"){
         if(embeds.tts) data.tts = embeds.tts
+        if(embeds.components) data.components = embeds.components
         if(embeds.allowed_mentions) data.allowed_mentions = embeds.allowed_mentions
         if(embeds.embeds) data.embeds = embeds.embeds
         else data.embeds = [];
@@ -107,12 +111,13 @@ module.exports = (globalVariables) => {
     }
 
     async send(...args){
-      let d = this.parseMessage(...args);
+      let d = SlashAPI.parseMessage(...args);
       await client.api.interactions(this.interaction.id, this.interaction.token).callback.post({data: {
         type: 4,
         data: d
       }});
-      let {parseMessage, interaction} = this;
+      let parseMessage = SlashAPI.parseMessage;
+      let {interaction} = this;
       let self = this;
       async function createMessage(msg){
         if(self.bot_scope) msg = new Discord.Message(client, msg, self.channel);
@@ -122,7 +127,7 @@ module.exports = (globalVariables) => {
             client.api.webhooks(client.user.id, interaction.token).messages[msg.id].patch({data});
           },
           delete(options){
-            if(options.timeout){
+            if(options && options.timeout){
               setTimeout(() => {
                 client.api.webhooks(client.user.id, interaction.token).messages[msg.id].delete();
               }, options.timeout);
@@ -143,4 +148,6 @@ module.exports = (globalVariables) => {
       return msg;
     }
   }
+
+  globalVariables.SlashAPI = SlashAPI;
 }
