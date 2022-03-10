@@ -27,7 +27,7 @@ module.exports = (globalVariables) => {
             .setDescription(`**Download**: ${search.url}`);
           msg.edit("",{embed});
         } else {
-          msg.edit(`TWRP wasn't find for \`${devicename(codename)}\``);
+          msg.edit(`TWRP wasn't found for \`${devicename(codename)}\``);
         }
       }
     } catch(e){
