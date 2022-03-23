@@ -19,3 +19,5 @@ After over a year of not improving the bot and no motivation to do it, I upload 
 
 **The bot is now DEPRECATED, source will be no more maintained, you are totally free to use the code as you wish!**\
 PS: Don't worry, the original bot will still be online for a long time 😉
+
+This bot was a really cool experience, i discoverd a lot of thing and nice guys, it is now the time to leave it, and give the source to help another developers who want to make Android Bot like commands and see how they works, or maybe create a new bot that is better 👀
